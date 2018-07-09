@@ -26,7 +26,7 @@ Calendar](https://support.google.com/calendar/answer/37118?hl=en).
 3. Click your location
 4. Copy the URL
 
-    > node index https://titleboxingclub.com/[your location]/
+    > node index https://titleboxingclub.com/[your-location]/
 
 Note that you may also filter which classes get added to the CSV file. See the `classFilter`
 function inside `index.js`. This could be useful for filtering out classes that conflict with other

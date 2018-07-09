@@ -6,7 +6,7 @@
   "directories": {},
   "scripts": {
     "test": "node index http://127.0.0.1:8080/test-static.html",
-    "start": "node index https://titleboxingclub.com/[your location]/"
+    "start": "node index https://titleboxingclub.com/[your-location]/"
   },
   "keywords": [],
   "author": "Travis Horn <me@travishorn.com> (https://travishorn.com)",
