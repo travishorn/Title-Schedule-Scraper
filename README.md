@@ -1,6 +1,6 @@
 # Title Schedule Scraper
 
-Scrapes the latest schedule from Title's website and outputs a CSV file ready for import into Google
+Scrapes the latest schedule from Title's website and outputs CSV data ready for import into Google
 Calendar.
 
 Title Boxing Club is a fitness gym that holds trainer-led classes daily. On their website, each
@@ -11,7 +11,7 @@ If you feed this module a location's homepage URL (for example:
 https://titleboxingclub.com/chicago-south-loop-il/), it will pull the available schedule and
 automatically create a CSV file.
 
-This CSV file can be [imported into Google
+The output can be saved to a file and [imported into Google
 Calendar](https://support.google.com/calendar/answer/37118?hl=en).
 
 ## Installation
@@ -28,11 +28,23 @@ Calendar](https://support.google.com/calendar/answer/37118?hl=en).
 
 Once you have the URL, simply run...
 
-    > node index https://titleboxingclub.com/[your-location]/
+    > node index [options] <url>
 
-Note that you may also filter which classes get added to the CSV file. See the `classFilter`
-function inside `index.js`. This could be useful for filtering out classes that conflict with other
-obligations.
+### Options:
+
+    -V, --version             output the version number
+    -c, --class <name>        Only include the specified class type (ex: Boxing)
+    -d, --duration <minutes>  Only include classes that last the specified number of minutes (ex: 60)
+    -t, --trainer <name>      Only include the specified trainer (ex: Jordan)
+    -h, --help                output usage information
+
+### Example
+
+    > node index -c Boxing -d 60 -t Jordan https://titleboxingclub.com/chicago-south-loop-il/
+
+This command will output CSV data to the terminal. You can pipe this data to file like so:
+
+    > node index https://titleboxingclub.com/chicago-south-loop-il/ > title-schedule.csv
 
 ## Looking forward
 
@@ -40,6 +52,9 @@ One better solution may be to scrape the schedule and serve iCal data from a ser
 this method would be that your connected calendar app would need to always have access to the URL.
 Meaning you would have to self-host an always-running server, or host it in the cloud. If hosting in
 the cloud, the HTML scraping portion of the module may violate certain terms of service.
+
+Another nice feature would be a way to specify your schedule (work, school, etc) so that you can
+"black out" certain days and times of the week. The CSV output would then only
 
 ## License
 

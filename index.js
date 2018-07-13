@@ -1,25 +1,13 @@
-const sanitizeFilename = require('sanitize-filename');
-const winston = require('winston');
+const program = require('commander');
 const cheerio = require('cheerio');
 const axios = require('axios');
 const moment = require('moment');
 const csvWriterMod = require('csv-writer');
 
-const logger = winston.createLogger({
-  level: 'debug',
-  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-  transports: [
-    new winston.transports.File({ filename: 'scraper.log' }),
-    new winston.transports.Console({ format: winston.format.simple() }),
-  ],
-});
-
 const now = moment();
-const csvFilename = sanitizeFilename(`title-schedule-${now.format()}.csv`);
-const csvFullPath = `output/${csvFilename}`;
+let url = null;
 
-const csvWriter = csvWriterMod.createObjectCsvWriter({
-  path: csvFullPath,
+const csvWriter = csvWriterMod.createObjectCsvStringifier({
   header: [
     { id: 'subject', title: 'Subject' },
     { id: 'startDate', title: 'Start Date' },
@@ -32,19 +20,26 @@ const csvWriter = csvWriterMod.createObjectCsvWriter({
 });
 
 const logError = (err) => {
-  logger.error(err);
+  process.stderr.write(err);
 };
 
 const classFilter = (c) => {
+  const parts = c.subject.split(' ');
+  const classType = parts[0].trim().toUpperCase();
+  const duration = parts[1].trim();
+  const trainer = parts[2].trim().toUpperCase();
+
+  if (program.class && classType !== program.class.toUpperCase()) return false;
+  if (program.duration && duration !== program.duration) return false;
+  if (program.trainer && trainer !== program.trainer.toUpperCase()) return false;
+
   /*
   const dayOfWeek = moment(c.startDate, 'MM/DD/YYYY').day();
   const hourOfDay = moment(c.startTime, 'h:mm A').hour();
 
-  const isBoxing60 = c.subject.includes('Boxing 60');
   const isOutsideWork = ([0, 6].includes(dayOfWeek) || hourOfDay >= 17);
 
-  if (isBoxing60 && isOutsideWork) return true;
-  return false;
+  if (!isOutsideWork) return false;
   */
 
   return true;
@@ -97,20 +92,32 @@ const parseData = (data) => {
 
   $('.schedule__slider .slide').each(eachDay);
 
-  csvWriter.writeRecords(classes.filter(classFilter))
-    .then(() => { logger.info(`Classes written to ${csvFullPath}.`); }, logError);
+  process.stdout.write(csvWriter.getHeaderString());
+  process.stdout.write(csvWriter.stringifyRecords(classes.filter(classFilter)));
 };
 
 const parseResponse = (res) => {
   if (res.status === 200) {
     parseData(res.data);
   } else {
-    logger.error(`Response status: ${res.status}`);
+    process.stderr.write(`Response status: ${res.status}`);
   }
 };
 
-if (typeof process.argv[2] === 'undefined') {
-  logger.error('Please specify a URL of a Title Boxing Club location homepage.');
+program
+  .version('2.0.0')
+  .usage('[options] <url>')
+  .option('-c, --class <name>', 'Only include the specified class type (ex: Boxing)')
+  .option('-d, --duration <minutes>', 'Only include classes that last the specified number of minutes (ex: 60)')
+  .option('-t, --trainer <name>', 'Only include the specified trainer (ex: Jordan)')
+  .arguments('<url>')
+  .action((urlValue) => {
+    url = urlValue;
+  })
+  .parse(process.argv);
+
+if (!url) {
+  process.stderr.write('Please specify a URL of a Title Boxing Club location homepage.');
 } else {
-  axios.get(process.argv[2]).then(parseResponse, logError);
+  axios.get(url).then(parseResponse, logError);
 }
