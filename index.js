@@ -33,6 +33,8 @@ const classFilter = (c) => {
   if (program.duration && duration !== program.duration) return false;
   if (program.trainer && trainer !== program.trainer.toUpperCase()) return false;
 
+  if (program.after && !moment(c.startDate, 'MM/DD/YYYY').isAfter(program.after)) return false;
+
   /*
   const dayOfWeek = moment(c.startDate, 'MM/DD/YYYY').day();
   const hourOfDay = moment(c.startTime, 'h:mm A').hour();
@@ -105,11 +107,12 @@ const parseResponse = (res) => {
 };
 
 program
-  .version('2.0.0')
+  .version('2.1.0')
   .usage('[options] <url>')
   .option('-c, --class <name>', 'Only include the specified class type (ex: Boxing)')
   .option('-d, --duration <minutes>', 'Only include classes that last the specified number of minutes (ex: 60)')
   .option('-t, --trainer <name>', 'Only include the specified trainer (ex: Jordan)')
+  .option('-a, --after <date>', 'Only include classes after the specified date. (ex: 2018-07-16)')
   .arguments('<url>')
   .action((urlValue) => {
     url = urlValue;
