@@ -1,6 +1,6 @@
 {
   "name": "title-scedule-scraper",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Scrapes the latest schedule from Title's website and outputs a CSV file ready for import into Google Calendar.",
   "main": "index.js",
   "scripts": {
